@@ -14,28 +14,28 @@ provider:
   name: aws
   runtime: nodejs18.x
   profile: regi
+  httpApi:
+    cors: true
 
-# you can overwrite defaults here
 #  stage: dev
   region: eu-central-1
 
-# you can define service wide environment variables here
+# define service wide environment variables here
 #  environment:
 #    variable1: value1
 
 functions:
-  hello:
-    handler: handler.hello
+  getUser:
+    handler: lambdas/getUser.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /getuser/{ID}
 
-# you can add CloudFormation resource templates here
+# add CloudFormation resource templates here
 resources:
  Resources:
    DemoBucketUpload:
      Type: AWS::S3::Bucket
      Properties:
        BucketName: serverless-bucket-upload-regi
-
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
