@@ -6,6 +6,22 @@ plugins:
   - serverless-s3-sync
   - serverless-webpack
 
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: regi
+  httpApi:
+    cors: true
+#  stage: dev
+  region: eu-central-1
+  environment:
+    tableName: ${self:custom.tableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamodb:*
+      Resource: '*'
+
 package:
   individually: true
 
@@ -15,23 +31,19 @@ custom:
     - bucketName: serverless-bucket-upload-regi
       localDir: uploadData
 
-provider:
-  name: aws
-  runtime: nodejs18.x
-  profile: regi
-  httpApi:
-    cors: true
-
-#  stage: dev
-  region: eu-central-1
-
 functions:
   getUser:
-    handler: lambdas/getUser.handler
+    handler: lambdas/endpoints/getUser.handler
     events:
       - httpApi:
           method: GET
-          path: /getuser/{ID}
+          path: /get-user/{ID}
+  getPlayerScore:
+    handler: lambdas/endpoints/getPlayerScore.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /get-player-score/{ID}
 
 # add CloudFormation resource templates here
 resources:
