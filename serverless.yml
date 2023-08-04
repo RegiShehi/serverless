@@ -32,18 +32,18 @@ custom:
       localDir: uploadData
 
 functions:
-  getUser:
-    handler: lambdas/endpoints/getUser.handler
-    events:
-      - httpApi:
-          method: GET
-          path: /get-user/{ID}
   getPlayerScore:
     handler: lambdas/endpoints/getPlayerScore.handler
     events:
       - httpApi:
           method: GET
           path: /get-player-score/{ID}
+  createPlayerScore:
+    handler: lambdas/endpoints/createPlayerScore.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /create-player-score/{ID}
 
 # add CloudFormation resource templates here
 resources:
