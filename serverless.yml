@@ -16,10 +16,12 @@ provider:
   region: eu-central-1
   environment:
     tableName: ${self:custom.tableName}
+    bucketName: ${self:custom.bucketName}
   iamRoleStatements:
     - Effect: Allow
       Action: 
         - dynamodb:*
+        - s3:*
       Resource: '*'
 
 package:
@@ -27,8 +29,9 @@ package:
 
 custom:
   tableName: player-points
+  bucketName: serverless-bucket-upload-regi
   s3Sync:
-    - bucketName: serverless-bucket-upload-regi
+    - bucketName: ${self:custom.bucketName}
       localDir: uploadData
 
 functions:
@@ -44,6 +47,18 @@ functions:
       - httpApi:
           method: POST
           path: /create-player-score/{ID}
+  createFile:
+    handler: lambdas/endpoints/createFile.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /create-file/{fileName}
+  getFile:
+    handler: lambdas/endpoints/getFile.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /get-file/{fileName}
 
 # add CloudFormation resource templates here
 resources:
@@ -51,7 +66,7 @@ resources:
     DemoBucketUpload:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: serverless-bucket-upload-regi
+        BucketName: ${self:custom.bucketName}
     MyDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
