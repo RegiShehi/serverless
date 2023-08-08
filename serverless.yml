@@ -3,7 +3,6 @@ service: myserverlessproject
 frameworkVersion: "3"
 
 plugins:
-  - serverless-s3-sync
   - serverless-webpack
 
 provider:
@@ -17,6 +16,7 @@ provider:
   environment:
     tableName: ${self:custom.tableName}
     bucketName: ${self:custom.bucketName}
+    websocketTableName: ${self:custom.websocketTableName}
   iamRoleStatements:
     - Effect: Allow
       Action: 
@@ -30,10 +30,8 @@ package:
 
 custom:
   tableName: player-points
+  websocketTableName: websocket-users
   bucketName: serverless-bucket-upload-regi
-  s3Sync:
-    - bucketName: ${self:custom.bucketName}
-      localDir: uploadData
 
 functions:
   getPlayerScore:
@@ -66,6 +64,28 @@ functions:
       - httpApi:
           method: POST
           path: /send-email
+  
+  # websocket lambda functions
+  websocket-connect:
+    handler: lambdas/websockets/connect.handler
+    events:
+      - websocket:
+          route: $connect
+  websocket-disconnect:
+    handler: lambdas/websockets/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+  websocket-default:
+    handler: lambdas/websockets/default.handler
+    events:
+      - websocket:
+          route: $default
+  websocket-message:
+    handler: lambdas/websockets/message.handler
+    events:
+      - websocket:
+          route: message
 
 # add CloudFormation resource templates here
 resources:
@@ -78,6 +98,17 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ID
+            KeyType: HASH
+        BillingMode:  PAY_PER_REQUEST
+    WebsocketUserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.websocketTableName}
         AttributeDefinitions:
           - AttributeName: ID
             AttributeType: S

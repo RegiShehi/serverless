@@ -42,6 +42,16 @@ const Dynamo = {
     }
 
     return data;
+  },
+  async delete(ID, TableName) {
+    const params = {
+      TableName,
+      Key: {
+        ID
+      }
+    };
+
+    return await documentClient.delete(params).promise();
   }
 };
 
