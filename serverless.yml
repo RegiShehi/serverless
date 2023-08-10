@@ -23,6 +23,7 @@ provider:
         - dynamodb:*
         - s3:*
         - ses:*
+        - comprehend:*
       Resource: '*'
 
 package:
@@ -64,6 +65,12 @@ functions:
       - httpApi:
           method: POST
           path: /send-email
+  # analyse:
+  #   handler: lambdas/endpoints/analyse.handler
+  #   events:
+  #     - httpApi:
+  #         method: POST
+  #         path: /analyse
   
   # websocket lambda functions
   websocket-connect:
