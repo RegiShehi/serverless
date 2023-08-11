@@ -1,5 +1,5 @@
 const Responses = require('../common/API_Responses');
-const AWS = require('aws-skd');
+const AWS = require('aws-sdk');
 
 const SES = new AWS.SES();
 

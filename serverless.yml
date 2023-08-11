@@ -4,6 +4,7 @@ frameworkVersion: "3"
 
 plugins:
   - serverless-webpack
+  - serverless-s3-sync
 
 provider:
   name: aws
@@ -30,9 +31,13 @@ package:
   individually: true
 
 custom:
+  reactBucketName: my-serverless-react-app-regi
   tableName: player-points
   websocketTableName: websocket-users
   bucketName: serverless-bucket-upload-regi
+  s3Sync:
+    - bucketName: ${self:custom.reactBucketName}
+      localDir: react-demo/dist/
 
 functions:
   getPlayerScore:
@@ -105,6 +110,66 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.bucketName}
+    ReactAppBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.reactBucketName}
+        # AccessControl: PublicRead
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+        OwnershipControls:
+          Rules:
+            - ObjectOwnership: ObjectWriter
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+    S3AccessPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action:
+              - s3:GetObject
+            Resource: arn:aws:s3:::${self:custom.reactBucketName}/*
+        Bucket:
+          Ref: ReactAppBucket
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - DomainName: ${self:custom.reactBucketName}.s3.amazonaws.com
+              Id: ReactApp
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
+          DefaultCacheBehavior:
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            TargetOriginId: ReactApp
+            ForwardedValues:
+              QueryString: 'false'
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+          ViewerCertificate:
+            CloudFrontDefaultCertificate: true
+          Enabled: 'true'
+          DefaultRootObject: index.html
+          CustomErrorResponses:
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /index.html
     MyDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
