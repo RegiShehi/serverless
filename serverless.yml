@@ -65,6 +65,10 @@ functions:
       - httpApi:
           method: POST
           path: /send-email
+  sendReminder:
+    handler: lambdas/scheduledTasks/reminderEmail.handler
+    events:
+      - schedule: cron(0 9 ? * 7 *)
   # analyse:
   #   handler: lambdas/endpoints/analyse.handler
   #   events:
