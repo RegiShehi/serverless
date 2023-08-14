@@ -824,6 +824,11 @@ jsonfile@^6.0.1:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
+lambda-hooks@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/lambda-hooks/-/lambda-hooks-0.2.1.tgz#e218eb170af4dc4d9610e83e179e8c8039f69856"
+  integrity sha512-ZPBQZR0twK+iZkbX0WKmIhmvvP4ZT9skFHTMpp4fOt0K6yql/rJhmXNKrJN77Bs7j23WP2W6uplEe2sR4sdOUg==
+
 lazystream@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/lazystream/-/lazystream-1.0.1.tgz#494c831062f1f9408251ec44db1cba29242a2638"
