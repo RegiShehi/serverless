@@ -11,6 +11,69 @@ const withHooks = useHooks({
   onError: [handleUnexpectedError]
 });
 
+const hooksWithValidation = ({ bodySchema, pathSchema }) => {
+  return useHooks(
+    {
+      before: [logEvent, parseEvent, validateEventBody, validatePaths],
+      after: [],
+      onError: [handleUnexpectedError]
+    },
+    {
+      bodySchema,
+      pathSchema
+    }
+  );
+};
+
+const validateEventBody = async (state) => {
+  const { bodySchema } = state.config;
+
+  if (!bodySchema) {
+    throw Error('Missing required body schema');
+  }
+
+  try {
+    const { event } = state;
+
+    await bodySchema.validate(event.body, { strict: true });
+  } catch (error) {
+    console.log('Yup validation error of event.body', error);
+    state.exit = true;
+
+    state.response = {
+      statusCode: 400,
+      body: JSON.stringify({ error: error.message })
+    };
+  }
+
+  return state;
+};
+
+const validatePaths = async (state) => {
+  const { pathSchema } = state.config;
+
+  if (!pathSchema) {
+    throw Error('Missing required path schema');
+  }
+
+  try {
+    const { event } = state;
+
+    await pathSchema.validate(event.pathParameters, { strict: true });
+  } catch (error) {
+    console.log('Yup validation error of path parameters', error);
+    state.exit = true;
+
+    state.response = {
+      statusCode: 400,
+      body: JSON.stringify({ error: error.message })
+    };
+  }
+
+  return state;
+};
+
 module.exports = {
-  withHooks
+  withHooks,
+  hooksWithValidation
 };
