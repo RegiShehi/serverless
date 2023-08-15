@@ -52,6 +52,12 @@ functions:
       - httpApi:
           method: POST
           path: /create-player-score/{ID}
+  updatePlayerScore:
+    handler: lambdas/endpoints/updatePlayerScore.handler
+    events:
+      - httpApi:
+          method: PUT
+          path: /update-player-score/{ID}
   createFile:
     handler: lambdas/endpoints/createFile.handler
     events:
