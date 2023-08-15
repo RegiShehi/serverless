@@ -58,6 +58,12 @@ functions:
       - httpApi:
           method: PUT
           path: /update-player-score/{ID}
+  getGameScores:
+    handler: lambdas/endpoints/getGameScores.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /get-game-scores/{game}
   createFile:
     handler: lambdas/endpoints/createFile.handler
     events:
@@ -183,10 +189,19 @@ resources:
         AttributeDefinitions:
           - AttributeName: ID
             AttributeType: S
+          - AttributeName: game
+            AttributeType: S
         KeySchema:
           - AttributeName: ID
             KeyType: HASH
         BillingMode:  PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: game-index
+            KeySchema: 
+              - AttributeName: game
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
     WebsocketUserTable:
       Type: AWS::DynamoDB::Table
       Properties:
